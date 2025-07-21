@@ -30,6 +30,13 @@ yum update -y
 echo "Disabling SELinux..."
 sed -i 's/SELINUX=enforcing/SELINUX=disabled/g' /etc/selinux/config
 
+# Size
+echo "Please Check the Hard disk Storage:"
+df -h
+
+echo "Please Check the Memory:"
+free -h
+
 # Reboot the system
 echo "Rebooting the system. Hold on..."
 reboot
