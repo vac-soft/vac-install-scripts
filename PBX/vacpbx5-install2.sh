@@ -3,7 +3,7 @@
 # Install dialog if not installed
 if ! command -v dialog &> /dev/null; then
   echo "Installing dialog..."
-  yum install -y dialog || apt install -y dialog
+  yum install -y dialog
 fi
 
 # Step 1: Get License Key from user via dialog
@@ -31,7 +31,7 @@ if [ -d "$INSTALL_DIR" ]; then
   echo "Removing old install directory..."
   rm -rf "$INSTALL_DIR"
 fi
-
+yum install -y git
 git clone "$REPO_URL" "$INSTALL_DIR"
 if [ $? -ne 0 ]; then
   echo "Git clone failed. Invalid token or permission denied."
@@ -41,11 +41,11 @@ fi
 cd "$INSTALL_DIR" || exit 1
 chmod +x *.sh
 
-if [[ -f vacpbxinstall1.sh ]]; then
+if [[ -f vacpbxinstall2.sh ]]; then
   echo "Running installation script..."
-  ./vacpbxinstall1.sh
+  ./vacpbxinstall2.sh
 else
-  echo "install1.sh not found in repository."
+  echo "install2.sh not found in repository."
   exit 1
 fi
 
