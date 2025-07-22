@@ -15,6 +15,7 @@ bash <(curl -s https://raw.githubusercontent.com/vac-soft/vac-install-scripts/ma
 </code></pre>
 5. Params Update:
 <pre lang='bash'><code>
+License : Check with VAC Team personally
 Asterisk Version : 16
 Wanpipe Drivers : yes
 Beta - No
