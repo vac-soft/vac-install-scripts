@@ -14,38 +14,52 @@ if [[ -z "$LICENSE_KEY" ]]; then
   exit 1
 fi
 
-# Step 2: Get GitHub Token from PHP
-TOKEN=$(curl -s "https://vaccrm.com/install.php?lic=$LICENSE_KEY")
+# Step 2: Get GitHub Token from server (do not echo token)
+TOKEN_RESPONSE=$(curl -s "https://vaccrm.com/install.php?lic=$LICENSE_KEY")
 
-if [[ -z "$TOKEN" ]]; then
-  echo "Failed to retrieve token from license key"
+# Step 3: Check if response is valid token format (e.g., GitHub tokens usually start with "ghp_" or are 40-char hex)
+if [[ "$TOKEN_RESPONSE" == *"EXPIRED"* ]]; then
+  echo "License key expired. Please contact VAC Team."
+  exit 1
+elif [[ "$TOKEN_RESPONSE" == *"USED"* ]]; then
+  echo "License key already used. Please contact VAC Team."
+  exit 1
+elif [[ "$TOKEN_RESPONSE" == *"NOTFOUND"* ]]; then
+  echo "License key is not valid. Please contact VAC Team."
+  exit 1
+elif [[ ${#TOKEN_RESPONSE} -lt 20 ]]; then
+  echo "Invalid license key or token retrieval failed. Please contact VAC Team."
   exit 1
 fi
 
-# Step 3: Clone the private repository using token
-REPO_URL="https://$TOKEN@github.com/vac-soft/VACPBX_GEN4.git"
+# Step 4: Clone the private repository using token silently
+REPO_URL="https://${TOKEN_RESPONSE}@github.com/vac-soft/VACPBX_GEN4.git"
 INSTALL_DIR="/opt/VACPBX_GEN4"
 
 echo "Cloning repository..."
+yum install -y git
+
 if [ -d "$INSTALL_DIR" ]; then
   echo "Removing old install directory..."
   rm -rf "$INSTALL_DIR"
 fi
-yum install -y git
-git clone "$REPO_URL" "$INSTALL_DIR"
+
+# Suppress token display by redirecting all output except errors
+GIT_TERMINAL_PROMPT=0 git clone "$REPO_URL" "$INSTALL_DIR" 2> /tmp/git_error.log
+
 if [ $? -ne 0 ]; then
-  echo "Git clone failed. Invalid token or permission denied."
+  echo "❌ Git clone failed. Please verify license validity. Check /tmp/git_error.log for more."
   exit 1
 fi
-# Step 4: Run install script
+
+# Step 5: Run install script
 cd "$INSTALL_DIR" || exit 1
 chmod +x *.sh
 
 if [[ -f vacpbxinstall2.sh ]]; then
-  echo "Running installation script..."
+  echo "✅ Running installation script..."
   ./vacpbxinstall2.sh
 else
-  echo "install2.sh not found in repository."
+  echo "❌ install2.sh not found in repository."
   exit 1
 fi
-
