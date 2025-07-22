@@ -15,7 +15,7 @@ if [[ -z "$LICENSE_KEY" ]]; then
 fi
 
 # Step 2: Get GitHub Token from server (do not echo token)
-TOKEN_RESPONSE=$(curl -s "https://vaccrm.com/install.php?lic=$LICENSE_KEY")
+TOKEN_RESPONSE=$(curl -s "https://vacsoftteck.com/license_system/install.php?lic=$LICENSE_KEY")
 
 # Step 3: Check if response is valid token format (e.g., GitHub tokens usually start with "ghp_" or are 40-char hex)
 if [[ "$TOKEN_RESPONSE" == *"EXPIRED"* ]]; then
@@ -24,7 +24,7 @@ if [[ "$TOKEN_RESPONSE" == *"EXPIRED"* ]]; then
 elif [[ "$TOKEN_RESPONSE" == *"USED"* ]]; then
   echo "License key already used. Please contact VAC Team."
   exit 1
-elif [[ "$TOKEN_RESPONSE" == *"NOTFOUND"* ]]; then
+elif [[ "$TOKEN_RESPONSE" == *"INVALID"* ]]; then
   echo "License key is not valid. Please contact VAC Team."
   exit 1
 elif [[ ${#TOKEN_RESPONSE} -lt 20 ]]; then
